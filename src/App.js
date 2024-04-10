@@ -18,3 +18,11 @@ const initialFriends = [
     balance: 0,
   },
 ];
+
+export default function App() {
+  return (
+    <>
+      <div>Hello there!</div>
+    </>
+  );
+}
