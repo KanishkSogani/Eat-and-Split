@@ -1,3 +1,4 @@
+import { toBeRequired } from "@testing-library/jest-dom/matchers";
 import { useState } from "react";
 
 const initialFriends = [
@@ -23,17 +24,24 @@ const initialFriends = [
 
 export default function App() {
   const [showAddFriend, setShowAddFriend] = useState(false);
+  const [friends, setFriends] = useState(initialFriends);
 
-  function handleAddFriend() {
+  function handleShowAddFriend() {
     setShowAddFriend((show) => !show);
   }
 
   return (
     <div className="app">
       <div className="sidebar">
-        <FriendsList />
-        {showAddFriend && <AddFriend />}
-        <Button onClick={handleAddFriend}>
+        <FriendsList friends={friends} />
+        {showAddFriend && (
+          <AddFriend
+            friends={friends}
+            setFriends={setFriends}
+            handleShow={handleShowAddFriend}
+          />
+        )}
+        <Button onClick={handleShowAddFriend}>
           {!showAddFriend ? "Add friend" : "Close"}
         </Button>
       </div>
@@ -43,8 +51,7 @@ export default function App() {
   );
 }
 
-function FriendsList() {
-  const friends = initialFriends;
+function FriendsList({ friends }) {
   return (
     <ul>
       {friends.map((friend) => (
@@ -83,11 +90,12 @@ function Button({ children, onClick }) {
   );
 }
 
-function AddFriend() {
+function AddFriend({ friends, setFriends, handleShow }) {
   const [name, setName] = useState("");
   const [image, setImage] = useState("https://i.pravatar.cc/48");
 
   function handleSubmit(e) {
+    if (!name || !image) return;
     e.preventDefault();
 
     const id = crypto.randomUUID();
@@ -97,13 +105,17 @@ function AddFriend() {
       image: `${image}?=${id}`,
       balance: 0,
     };
-
     console.log(newFriend);
+    setFriends((friends) => [...friends, newFriend]);
+    handleShow();
+    setName("");
+    setImage("https://i.pravatar.cc/48");
   }
   return (
     <form className="form-add-friend" onSubmit={handleSubmit}>
       <label>🧑‍🤝‍🧑Friend name</label>
       <input
+        required={true}
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -111,6 +123,7 @@ function AddFriend() {
 
       <label>🌇 Image url</label>
       <input
+        required={true}
         type="text"
         value={image}
         onChange={(e) => setImage(e.target.value)}
