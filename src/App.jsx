@@ -25,6 +25,7 @@ const initialFriends = [
 export default function App() {
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [friends, setFriends] = useState(initialFriends);
+  const [selectedFriend, setSelectedFriend] = useState(null);
 
   function handleShowAddFriend() {
     setShowAddFriend((show) => !show);
@@ -46,7 +47,7 @@ export default function App() {
         </Button>
       </div>
 
-      <SpiltBill />
+      {selectedFriend && <SpiltBill />}
     </div>
   );
 }
