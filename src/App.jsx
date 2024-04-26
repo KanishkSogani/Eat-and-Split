@@ -31,10 +31,20 @@ export default function App() {
     setShowAddFriend((show) => !show);
   }
 
+  function handleSelection(friend) {
+    setSelectedFriend(friend);
+    console.log(friend);
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
-        <FriendsList friends={friends} />
+        <FriendsList
+          friends={friends}
+          onSelection={handleSelection}
+          selectedFriend={selectedFriend}
+        />
+
         {showAddFriend && (
           <AddFriend
             friends={friends}
@@ -42,29 +52,36 @@ export default function App() {
             handleShow={handleShowAddFriend}
           />
         )}
+
         <Button onClick={handleShowAddFriend}>
           {!showAddFriend ? "Add friend" : "Close"}
         </Button>
       </div>
 
-      {selectedFriend && <SpiltBill />}
+      {selectedFriend && <SpiltBill selectedFriend={selectedFriend} />}
     </div>
   );
 }
 
-function FriendsList({ friends }) {
+function FriendsList({ friends, onSelection, selectedFriend }) {
   return (
     <ul>
       {friends.map((friend) => (
-        <Friend friend={friend} key={friend.id} />
+        <Friend
+          friend={friend}
+          key={friend.id}
+          onSelection={onSelection}
+          selectedFriend={selectedFriend}
+        />
       ))}
     </ul>
   );
 }
 
-function Friend({ friend }) {
+function Friend({ friend, onSelection, selectedFriend }) {
+  const isSelected = selectedFriend.id === friend.id;
   return (
-    <li>
+    <li className={isSelected ? "selected" : ""}>
       <img src={friend.image} alt={friend.name} />
       <h3>{friend.name}</h3>
       {friend.balance < 0 && (
@@ -78,7 +95,9 @@ function Friend({ friend }) {
         </p>
       )}
       {friend.balance === 0 && <p>You and {friend.name} are equal</p>}
-      <Button>Select</Button>
+      <Button onClick={() => onSelection(friend)}>
+        {isSelected ? "Close" : "Select"}
+      </Button>
     </li>
   );
 }
@@ -135,15 +154,15 @@ function AddFriend({ friends, setFriends, handleShow }) {
   );
 }
 
-function SpiltBill() {
+function SpiltBill({ selectedFriend }) {
   return (
     <form className="form-split-bill">
-      <h2>Split a bill with X</h2>
+      <h2>Split a bill with {selectedFriend.name} </h2>
       <label>💰 Bill value</label>
       <input type="text" />
       <label>🙍‍♂️ Your expense</label>
       <input type="text" />
-      <label>🧑‍🤝‍🧑 X's expense</label>
+      <label>🧑‍🤝‍🧑 {selectedFriend.name}'s expense</label>
       <input type="text" disabled />
       <label>🤑Who is paying the bill</label>
       <select>
