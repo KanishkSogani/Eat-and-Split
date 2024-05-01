@@ -1,4 +1,3 @@
-import { toBeRequired } from "@testing-library/jest-dom/matchers";
 import { useState } from "react";
 
 const initialFriends = [
@@ -158,6 +157,7 @@ function AddFriend({ friends, setFriends, handleShow }) {
 function SpiltBill({ selectedFriend }) {
   const [bill, setBill] = useState("");
   const [paidByUser, setPaidByUser] = useState("");
+  const paid = bill ? bill - paidByUser : "";
   const [whoIsPaying, setWhoIsPaying] = useState("user");
 
   return (
@@ -167,16 +167,20 @@ function SpiltBill({ selectedFriend }) {
       <input
         type="text"
         value={bill}
-        onChange={(e) => setBill(e.target.value)}
+        onChange={(e) => setBill(Number(e.target.value))}
       />
       <label>🙍‍♂️ Your expense</label>
       <input
         type="text"
         value={paidByUser}
-        onChange={(e) => setPaidByUser(e.target.value)}
+        onChange={(e) =>
+          setPaidByUser(
+            Number(e.target.value) > bill ? paidByUser : Number(e.target.value)
+          )
+        }
       />
       <label>🧑‍🤝‍🧑 {selectedFriend.name}'s expense</label>
-      <input type="text" disabled />
+      <input type="text" disabled value={paid} />
       <label>🤑Who is paying the bill</label>
       <select
         value={whoIsPaying}
@@ -185,6 +189,7 @@ function SpiltBill({ selectedFriend }) {
         <option value="user">You</option>
         <option value="friend">{selectedFriend.name}</option>
       </select>
+      <Button>Split Bill</Button>
     </form>
   );
 }
