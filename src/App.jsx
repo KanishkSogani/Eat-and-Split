@@ -37,6 +37,16 @@ export default function App() {
     setShowAddFriend(false);
   }
 
+  function handleSplitBill(value) {
+    setFriends((friends) =>
+      friends.map((friend) =>
+        friend.id === selectedFriend.id
+          ? { ...friend, balance: friend.balance + value }
+          : friend
+      )
+    );
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
@@ -59,7 +69,12 @@ export default function App() {
         </Button>
       </div>
 
-      {selectedFriend && <SpiltBill selectedFriend={selectedFriend} />}
+      {selectedFriend && (
+        <SpiltBill
+          selectedFriend={selectedFriend}
+          onSplitBill={handleSplitBill}
+        />
+      )}
     </div>
   );
 }
@@ -154,20 +169,26 @@ function AddFriend({ friends, setFriends, handleShow }) {
   );
 }
 
-function SpiltBill({ selectedFriend }) {
+function SpiltBill({ selectedFriend, onSplitBill }) {
   const [bill, setBill] = useState("");
   const [paidByUser, setPaidByUser] = useState("");
-  const paid = bill ? bill - paidByUser : "";
+  const paidByFriend = bill ? bill - paidByUser : "";
   const [whoIsPaying, setWhoIsPaying] = useState("user");
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSplitBill(whoIsPaying === "user" ? paidByFriend : -paidByUser);
+  };
+
   return (
-    <form className="form-split-bill">
+    <form className="form-split-bill" onSubmit={handleSubmit}>
       <h2>Split a bill with {selectedFriend.name} </h2>
       <label>💰 Bill value</label>
       <input
         type="text"
         value={bill}
         onChange={(e) => setBill(Number(e.target.value))}
+        required={true}
       />
       <label>🙍‍♂️ Your expense</label>
       <input
@@ -178,9 +199,10 @@ function SpiltBill({ selectedFriend }) {
             Number(e.target.value) > bill ? paidByUser : Number(e.target.value)
           )
         }
+        required={true}
       />
       <label>🧑‍🤝‍🧑 {selectedFriend.name}'s expense</label>
-      <input type="text" disabled value={paid} />
+      <input type="text" disabled value={paidByFriend} />
       <label>🤑Who is paying the bill</label>
       <select
         value={whoIsPaying}
